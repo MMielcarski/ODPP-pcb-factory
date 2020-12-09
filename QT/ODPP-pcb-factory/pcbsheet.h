@@ -14,6 +14,7 @@ public:
     PCBSheet();
     PCBSheet(uint arg_id);
     bool addPcbBoardSimple(PCBBoard arg_board);
+    bool addPcbBoardBestFit(PCBBoard arg_board, int x, int y);
     QRect getRect();
     uint getPcbBoardListSize();
     QList <PCBBoard> getPcbboardList();

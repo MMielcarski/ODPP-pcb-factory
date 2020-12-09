@@ -62,3 +62,11 @@ void PCBBoard::D_printBoardInfo()
 {
     qDebug() <<"Id: "<<id<<" Size: "<<size<<" Quantity: "<<quantity;
 }
+
+void PCBBoard::spin()
+{
+    int w = rect.width();
+    int h = rect.height();
+    rect.setSize(QSize(h,w));
+    size = rect.size();
+}

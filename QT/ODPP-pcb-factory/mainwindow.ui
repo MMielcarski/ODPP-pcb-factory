@@ -20,7 +20,7 @@
       <item>
        <widget class="QTabWidget" name="tabWidget">
         <property name="currentIndex">
-         <number>2</number>
+         <number>0</number>
         </property>
         <widget class="QWidget" name="tabOrderData">
          <attribute name="title">
@@ -162,7 +162,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>22</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuDane">
@@ -176,6 +176,7 @@
      <string>Optymalizacja</string>
     </property>
     <addaction name="actionAlgorytm_Prosty"/>
+    <addaction name="actionAlgorytm_Best_Fit"/>
    </widget>
    <addaction name="menuDane"/>
    <addaction name="menuOptymalizacja"/>
@@ -189,6 +190,11 @@
   <action name="actionAlgorytm_Prosty">
    <property name="text">
     <string>Algorytm Prosty</string>
+   </property>
+  </action>
+  <action name="actionAlgorytm_Best_Fit">
+   <property name="text">
+    <string>Algorytm Best-Fit</string>
    </property>
   </action>
  </widget>

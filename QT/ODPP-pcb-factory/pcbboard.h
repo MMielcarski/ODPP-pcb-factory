@@ -22,6 +22,7 @@ public:
     void setColor(QColor arg_color);
     void setCoords(QPoint arg_coord);
     void D_printBoardInfo();
+    void spin();
 
 private:
     QString id;

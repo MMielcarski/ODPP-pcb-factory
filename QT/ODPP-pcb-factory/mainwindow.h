@@ -31,6 +31,7 @@ public:
 private slots:
     void on_actionImport_triggered();
     void on_actionAlgorytm_Prosty_triggered();
+    void on_actionAlgorytm_Best_Fit_triggered();
     void on_buttonPrevSheet_clicked();
     void on_buttonNextSheet_clicked();
     void on_lineEditCurrentSheet_returnPressed();
@@ -50,6 +51,7 @@ private:
     //PCBSheets
     QList <PCBSheet> pcbsheetsList;
     void optimizeSimple();
+    void optimiseBestFit();
     int getPcbsheetsCount();
 
     // ORDER TABLE

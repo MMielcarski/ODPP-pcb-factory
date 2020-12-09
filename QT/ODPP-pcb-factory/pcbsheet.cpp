@@ -37,6 +37,13 @@ bool PCBSheet::addPcbBoardSimple(PCBBoard arg_board)
     return true;
 }
 
+bool PCBSheet::addPcbBoardBestFit(PCBBoard arg_board, int x, int y)
+{
+    arg_board.setCoords(QPoint(x,y));
+    board_list.append(arg_board);
+    return true;
+}
+
 QPoint PCBSheet::getLastCorner()
 {
     if(getPcbBoardListSize() == 0) {

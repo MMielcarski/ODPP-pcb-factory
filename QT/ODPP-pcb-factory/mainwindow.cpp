@@ -77,6 +77,18 @@ void MainWindow::on_actionAlgorytm_Prosty_triggered()
     ui->tabWidget->setCurrentIndex(GRAPHICS_SCENE_TAB);
 }
 
+void MainWindow::on_actionAlgorytm_Best_Fit_triggered()
+{
+    optimiseBestFit();
+    if(pcbsheetsList.size() > 0)
+    {
+        displaySheet(currentSheet);
+        updateSheetNavigation();
+    }
+    ui->tabWidget->setCurrentIndex(GRAPHICS_SCENE_TAB);
+}
+
+
 void MainWindow::on_buttonPrevSheet_clicked()
 {
     if(currentSheet > 0) {
@@ -121,6 +133,84 @@ void MainWindow::optimizeSimple()
         while(pcbboards_left > 0) {
             pcbsheetsList.append(PCBSheet(sheet_id));
             while(pcbboards_left >= 0 && pcbsheetsList[sheet_id].addPcbBoardSimple(pcbboardsList[pcbboards_left])) {
+                pcbboards_left--;
+            }
+            sheet_id++;
+        }
+    }
+}
+
+void MainWindow::optimiseBestFit()
+{   
+    int sheet_id = 0, pcbboards_left;
+    pcbsheetsList.clear();
+    if(pcbboardsList.size() == 0)
+    {
+        QMessageBox msgBox;
+        msgBox.setText("Brak wczytanych danych!");
+        msgBox.exec();
+    }
+    else //algorytm
+    {
+        pcbboards_left = pcbboardsList.size() - 1;
+        while(pcbboards_left > 0)
+        {
+            pcbsheetsList.append(PCBSheet(sheet_id));
+            QList<QRect> rectangleList;
+            rectangleList.append(pcbsheetsList[sheet_id].getRect());
+
+            while(pcbboards_left >= 0)
+            {
+                //Decide the free rectangle to pack the board into
+                int minArea = 2000000000;
+                int bestRect = -1;
+                for (int i=0;i<rectangleList.size();i++)
+                {
+                    int area = rectangleList[i].width()*rectangleList[i].height(); //BEST AREA FIT
+                    if ( ( (rectangleList[i].height()>=pcbboardsList[pcbboards_left].getSize().height() &&
+                            rectangleList[i].width()>=pcbboardsList[pcbboards_left].getSize().width() ) ||
+                            (rectangleList[i].height()>=pcbboardsList[pcbboards_left].getSize().width() &&
+                             rectangleList[i].width()>=pcbboardsList[pcbboards_left].getSize().height() ) ) &&
+                         area < minArea )
+                    {
+                        minArea = area;
+                        bestRect = i;
+                    }
+                }
+                //If no such rectangle is found restart with new sheet
+                if (bestRect == -1) break;
+                //Decide the orientation for the board
+                if ( rectangleList[bestRect].height()<pcbboardsList[pcbboards_left].getSize().height() ||
+                        rectangleList[bestRect].width()<pcbboardsList[pcbboards_left].getSize().width() )
+                {
+                    pcbboardsList[pcbboards_left].spin();
+                }
+                //  and place it at the top left of the rectangle
+                pcbsheetsList[sheet_id].addPcbBoardBestFit(pcbboardsList[pcbboards_left],rectangleList[bestRect].x(),rectangleList[bestRect].y());
+                //Use the guillotine split scheme to subdivide the rectangle
+                int newW1,newW2,newH1,newH2;
+                int newX1,newX2,newY1,newY2;
+                if (pcbboardsList[pcbboards_left].getSize().height()<pcbboardsList[pcbboards_left].getSize().width()) //SHORTER AXIS SPLIT
+                {
+                    newW1 = pcbboardsList[pcbboards_left].getSize().width();
+                    newH2 = rectangleList[bestRect].height();
+                }
+                else
+                {
+                    newW1 = rectangleList[bestRect].width();
+                    newH2 = pcbboardsList[pcbboards_left].getSize().height();
+                }
+                newX1 = rectangleList[bestRect].x();
+                newY1 = rectangleList[bestRect].y() + pcbboardsList[pcbboards_left].getSize().height();
+                newH1 = rectangleList[bestRect].height() - pcbboardsList[pcbboards_left].getSize().height();
+                newX2 = rectangleList[bestRect].x() + pcbboardsList[pcbboards_left].getSize().width();
+                newY2 = rectangleList[bestRect].y();
+                newW2 = rectangleList[bestRect].width() - pcbboardsList[pcbboards_left].getSize().width();
+                //Remove used rectangle and set the new ones
+                rectangleList.removeAt(bestRect);
+                if (newW1 > 0 && newH1 > 0) rectangleList.append(QRect(newX1,newY1,newW1,newH1));
+                if (newW2 > 0 && newH2 > 0) rectangleList.append(QRect(newX2,newY2,newW2,newH2));
+
                 pcbboards_left--;
             }
             sheet_id++;
@@ -228,6 +318,4 @@ int MainWindow::getPcbsheetsCount()
     return pcbsheetsList.size();
 }
 // ## DATA HANDLING
-
-
 
