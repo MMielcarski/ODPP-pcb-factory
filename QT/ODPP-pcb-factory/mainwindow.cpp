@@ -12,6 +12,7 @@ MainWindow::MainWindow(QWidget *parent)
     initOrderTable();
     initBoardTable();
     initScene();
+    clearData();
 }
 
 MainWindow::~MainWindow()
@@ -23,11 +24,16 @@ MainWindow::~MainWindow()
 // ## BUTTON TRIGGERS
 void MainWindow::on_actionImport_triggered()
 {
-    QMessageBox::StandardButton reply;
-    reply = QMessageBox::question(this, "Import danych", "Import danych spowoduje usunięcie istniejących danych. Kontynuować?",
-                                QMessageBox::Yes|QMessageBox::No);
-    if (reply == QMessageBox::Yes)
-    {
+    bool accept = true;
+    if(pcbboardOrdersList.size() > 0) {
+        QMessageBox::StandardButton reply;
+        reply = QMessageBox::question(this, "Import danych", "Import danych spowoduje usunięcie istniejących danych. Kontynuować?",
+        QMessageBox::Yes|QMessageBox::No);
+        if (reply == QMessageBox::No) {
+            accept = false;
+        }
+    }
+    if (accept) {
         QMessageBox msgBox;
         QString filePath = QFileDialog::getOpenFileName(this, tr("Import danych wejściowych"));
         const QFileInfo fileDir(filePath);
@@ -116,6 +122,17 @@ void MainWindow::on_lineEditCurrentSheet_returnPressed()
         displaySheet(currentSheet);
     }
 }
+
+void MainWindow::on_actionWyczy_triggered()
+{
+    QMessageBox::StandardButton reply;
+    reply = QMessageBox::question(this, "Czyszczenie danych", "Czy na pewno chcesz usunąć wszystkie dane i wyniki?",
+                                QMessageBox::Yes|QMessageBox::No);
+    if (reply == QMessageBox::Yes)
+    {
+        clearData();
+    }
+}
 // ## BUTTON TRIGGERS
 
 // ## SOLVING ALGORITHMS
@@ -138,6 +155,7 @@ void MainWindow::optimizeSimple()
             sheet_id++;
         }
     }
+    displayScore();
 }
 
 void MainWindow::optimiseBestFit()
@@ -241,6 +259,7 @@ void MainWindow::optimiseBestFit()
             sheet_id++;
         }
     }
+    displayScore();
 }
 // ## SOLVING ALGORITHMS
 
@@ -250,6 +269,7 @@ void MainWindow::initScene()
 {
     sheetScene = new QGraphicsScene();
     currentSheet = 0;
+    updateSheetNavigation();
 }
 
 void MainWindow::displaySheet(int sheet_id)
@@ -269,8 +289,13 @@ void MainWindow::displaySheet(int sheet_id)
 
 void MainWindow::updateSheetNavigation()
 {
-    ui->lineEditMaxSheet->setText(QString::number(getPcbsheetsCount()));
-    ui->lineEditCurrentSheet->setText(QString::number(currentSheet+1));
+    int sheetCount = 0, actSheet = 0;
+    if(getPcbsheetsCount() > 0) {
+        sheetCount = getPcbsheetsCount();
+        actSheet = currentSheet+1;
+    }
+    ui->lineEditMaxSheet->setText(QString::number(sheetCount));
+    ui->lineEditCurrentSheet->setText(QString::number(actSheet));
 }
 // ## GRAPHICS SCENE HANDLING
 
@@ -321,11 +346,19 @@ void MainWindow::addBoardTableRow(PCBBoard board)
 void MainWindow::clearData()
 {
     pcbsheetsList.clear();
-    pcbsheetsList.clear();
+    pcbboardsList.clear();
     pcbboardOrdersList.clear();
     sheetScene->clear();
     ui->tableWidgetOrders->clear();
+    ui->tableWidgetOrders->setRowCount(0);
+    ui->tableWidgetOrders->setColumnCount(0);
     ui->tableWidgetBoards->clear();
+    ui->tableWidgetBoards->setRowCount(0);
+    ui->tableWidgetBoards->setColumnCount(0);
+    initOrderTable();
+    initBoardTable();
+    initScene();
+    displayScore();
 }
 
 void MainWindow::addPcbOrderToList(PCBBoard arg_pcb)
@@ -342,5 +375,61 @@ int MainWindow::getPcbsheetsCount()
 {
     return pcbsheetsList.size();
 }
+
+int MainWindow::getSurfaceUsed()
+{
+    int sum = 0;
+    for(int i = 0; i<pcbboardsList.size(); i++) {
+        sum += pcbboardsList[i].getSize().width() * pcbboardsList[i].getSize().height();
+    }
+    return sum;
+}
+
+int MainWindow::getPcbSheetsSurface()
+{
+    return getPcbsheetsCount() * 450*450;
+}
+
+void MainWindow::displayScore()
+{
+    bool visibility = true;
+    if(getPcbsheetsCount() == 0) {
+        visibility = false;
+    }
+
+    ui->labelScoreHeader->setVisible(visibility);
+    ui->labelScoreNull->setVisible(visibility);
+    ui->labelSheetCount->setVisible(visibility);
+    ui->labelSheetCountVal->setVisible(visibility);
+    ui->labelMaterialLoss->setVisible(visibility);
+    ui->labelMaterialLossVal->setVisible(visibility);
+    ui->labelAreaUsed->setVisible(visibility);
+    ui->labelAreaUsedVal->setVisible(visibility);
+    ui->labelInDataHeader->setVisible(visibility);
+    ui->labelInDataNull->setVisible(visibility);
+    ui->labelPcbCount->setVisible(visibility);
+    ui->labelPcbCountVal->setVisible(visibility);
+    ui->labelOrderCount->setVisible(visibility);
+    ui->labelOrderCountVal->setVisible(visibility);
+    ui->labelSheetsSurface->setVisible(visibility);
+    ui->labelSheetsSurfaceVal->setVisible(visibility);
+
+    if(getPcbsheetsCount() == 0) {
+        return;
+    }
+
+    ui->labelSheetCountVal->setNum(getPcbsheetsCount());
+    double materialLoss = ((double(getPcbSheetsSurface()) - double(getSurfaceUsed())) / double(getPcbSheetsSurface())) * 100.0;
+    QString dispMatLoss;
+    dispMatLoss.setNum(materialLoss,'g',4);
+    ui->labelMaterialLossVal->setText(dispMatLoss + "%");
+    ui->labelAreaUsedVal->setNum(getSurfaceUsed());
+    ui->labelPcbCountVal->setNum(pcbboardsList.size());
+    ui->labelOrderCountVal->setNum(pcbsheetsList.size());
+    ui->labelSheetsSurfaceVal->setNum(getPcbSheetsSurface());
+
+}
 // ## DATA HANDLING
+
+
 

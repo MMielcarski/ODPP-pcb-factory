@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>600</height>
+    <width>736</width>
+    <height>569</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -20,7 +20,7 @@
       <item>
        <widget class="QTabWidget" name="tabWidget">
         <property name="currentIndex">
-         <number>0</number>
+         <number>3</number>
         </property>
         <widget class="QWidget" name="tabOrderData">
          <attribute name="title">
@@ -140,15 +140,154 @@
           </item>
          </layout>
         </widget>
-        <widget class="QWidget" name="tab_control">
-         <attribute name="title">
-          <string>Panel Sterowania</string>
-         </attribute>
-        </widget>
-        <widget class="QWidget" name="tab_output">
+        <widget class="QWidget" name="tabScore">
          <attribute name="title">
           <string>Wyniki</string>
          </attribute>
+         <layout class="QGridLayout" name="gridLayout_5">
+          <item row="0" column="0">
+           <layout class="QFormLayout" name="formLayoutScore">
+            <item row="0" column="0">
+             <widget class="QLabel" name="labelScoreHeader">
+              <property name="font">
+               <font>
+                <pointsize>15</pointsize>
+               </font>
+              </property>
+              <property name="text">
+               <string>Wyniki</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QLabel" name="labelScoreNull">
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0">
+             <widget class="QLabel" name="labelSheetCount">
+              <property name="text">
+               <string>Liczba arkuszy:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QLabel" name="labelSheetCountVal">
+              <property name="text">
+               <string>TextLabel</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0">
+             <widget class="QLabel" name="labelMaterialLoss">
+              <property name="text">
+               <string>Strata materiału:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="1">
+             <widget class="QLabel" name="labelMaterialLossVal">
+              <property name="text">
+               <string>TextLabel</string>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="0">
+             <widget class="QLabel" name="labelAreaUsed">
+              <property name="text">
+               <string>Wykorzystana powierzchnia:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="1">
+             <widget class="QLabel" name="labelAreaUsedVal">
+              <property name="text">
+               <string>TextLabel</string>
+              </property>
+             </widget>
+            </item>
+            <item row="5" column="0">
+             <spacer name="verticalSpacer">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeType">
+               <enum>QSizePolicy::Fixed</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>5</width>
+                <height>30</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item row="6" column="0">
+             <widget class="QLabel" name="labelInDataHeader">
+              <property name="font">
+               <font>
+                <pointsize>15</pointsize>
+               </font>
+              </property>
+              <property name="text">
+               <string>Dane wejściowe</string>
+              </property>
+             </widget>
+            </item>
+            <item row="6" column="1">
+             <widget class="QLabel" name="labelInDataNull">
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item row="7" column="0">
+             <widget class="QLabel" name="labelPcbCount">
+              <property name="text">
+               <string>Liczba płytek:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="7" column="1">
+             <widget class="QLabel" name="labelPcbCountVal">
+              <property name="text">
+               <string>TextLabel</string>
+              </property>
+             </widget>
+            </item>
+            <item row="8" column="0">
+             <widget class="QLabel" name="labelOrderCount">
+              <property name="text">
+               <string>Liczba zamówień:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="8" column="1">
+             <widget class="QLabel" name="labelOrderCountVal">
+              <property name="text">
+               <string>TextLabel</string>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="0">
+             <widget class="QLabel" name="labelSheetsSurface">
+              <property name="text">
+               <string>Powierzchnia całkowita:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="1">
+             <widget class="QLabel" name="labelSheetsSurfaceVal">
+              <property name="text">
+               <string>TextLabel</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
         </widget>
        </widget>
       </item>
@@ -161,8 +300,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>800</width>
-     <height>21</height>
+     <width>736</width>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuDane">
@@ -170,6 +309,7 @@
      <string>Dane</string>
     </property>
     <addaction name="actionImport"/>
+    <addaction name="actionWyczy"/>
    </widget>
    <widget class="QMenu" name="menuOptymalizacja">
     <property name="title">
@@ -195,6 +335,11 @@
   <action name="actionAlgorytm_Best_Fit">
    <property name="text">
     <string>Algorytm Best-Fit</string>
+   </property>
+  </action>
+  <action name="actionWyczy">
+   <property name="text">
+    <string>Wyczyść</string>
    </property>
   </action>
  </widget>

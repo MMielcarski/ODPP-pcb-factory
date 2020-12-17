@@ -36,6 +36,8 @@ private slots:
     void on_buttonNextSheet_clicked();
     void on_lineEditCurrentSheet_returnPressed();
 
+    void on_actionWyczy_triggered();
+
 private:
     Ui::MainWindow *ui;
 
@@ -53,6 +55,8 @@ private:
     void optimizeSimple();
     void optimiseBestFit();
     int getPcbsheetsCount();
+    int getSurfaceUsed();
+    int getPcbSheetsSurface();
 
     // ORDER TABLE
     void initOrderTable();
@@ -61,6 +65,9 @@ private:
     // BOARDS TABLE
     void initBoardTable();
     void addBoardTableRow(PCBBoard board);
+
+    // SCORE
+    void displayScore();
 
     // Graphics Scene
     QGraphicsScene* sheetScene;
