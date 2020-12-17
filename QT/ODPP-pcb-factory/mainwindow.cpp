@@ -143,6 +143,7 @@ void MainWindow::optimizeSimple()
 void MainWindow::optimiseBestFit()
 {   
     int sheet_id = 0, pcbboards_left;
+    int pcbboards_used[100000];
     pcbsheetsList.clear();
     if(pcbboardsList.size() == 0)
     {
@@ -153,6 +154,10 @@ void MainWindow::optimiseBestFit()
     else //algorytm
     {
         pcbboards_left = pcbboardsList.size() - 1;
+        for (int i=0;i<=pcbboards_left;i++)
+        {
+            pcbboards_used[i] = 0;
+        }
         while(pcbboards_left > 0)
         {
             pcbsheetsList.append(PCBSheet(sheet_id));
@@ -161,57 +166,77 @@ void MainWindow::optimiseBestFit()
 
             while(pcbboards_left >= 0)
             {
-                //Decide the free rectangle to pack the board into
+                int selected_board = -1;
                 int minArea = 2000000000;
                 int bestRect = -1;
-                for (int i=0;i<rectangleList.size();i++)
+                for (int j=pcbboards_left;j>=0;j--) //Select first fiting board
                 {
-                    int area = rectangleList[i].width()*rectangleList[i].height(); //BEST AREA FIT
-                    if ( ( (rectangleList[i].height()>=pcbboardsList[pcbboards_left].getSize().height() &&
-                            rectangleList[i].width()>=pcbboardsList[pcbboards_left].getSize().width() ) ||
-                            (rectangleList[i].height()>=pcbboardsList[pcbboards_left].getSize().width() &&
-                             rectangleList[i].width()>=pcbboardsList[pcbboards_left].getSize().height() ) ) &&
-                         area < minArea )
+                    for (int i=0;i<rectangleList.size();i++)//Decide the free rectangle to pack the board into
                     {
-                        minArea = area;
-                        bestRect = i;
+                        if (pcbboards_used[j] == 0)
+                        {
+                            int area = rectangleList[i].width()*rectangleList[i].height(); //BEST AREA FIT
+                            if ( ( (rectangleList[i].height()>=pcbboardsList[j].getSize().height() &&
+                                    rectangleList[i].width()>=pcbboardsList[j].getSize().width() ) ||
+                                    (rectangleList[i].height()>=pcbboardsList[j].getSize().width() &&
+                                     rectangleList[i].width()>=pcbboardsList[j].getSize().height() ) ) &&
+                                 area < minArea )
+                            {
+                                minArea = area;
+                                bestRect = i;
+                            }
+
+                        }
+                    }
+                    if (bestRect != -1)
+                    {
+                        selected_board = j;
+                        break;
                     }
                 }
+
+
+
                 //If no such rectangle is found restart with new sheet
                 if (bestRect == -1) break;
                 //Decide the orientation for the board
-                if ( rectangleList[bestRect].height()<pcbboardsList[pcbboards_left].getSize().height() ||
-                        rectangleList[bestRect].width()<pcbboardsList[pcbboards_left].getSize().width() )
+                if ( rectangleList[bestRect].height()<pcbboardsList[selected_board].getSize().height() ||
+                        rectangleList[bestRect].width()<pcbboardsList[selected_board].getSize().width() )
                 {
-                    pcbboardsList[pcbboards_left].spin();
+                    pcbboardsList[selected_board].spin();
                 }
                 //  and place it at the top left of the rectangle
-                pcbsheetsList[sheet_id].addPcbBoardBestFit(pcbboardsList[pcbboards_left],rectangleList[bestRect].x(),rectangleList[bestRect].y());
+                pcbsheetsList[sheet_id].addPcbBoardBestFit(pcbboardsList[selected_board],rectangleList[bestRect].x(),rectangleList[bestRect].y());
                 //Use the guillotine split scheme to subdivide the rectangle
                 int newW1,newW2,newH1,newH2;
                 int newX1,newX2,newY1,newY2;
-                if (pcbboardsList[pcbboards_left].getSize().height()<pcbboardsList[pcbboards_left].getSize().width()) //SHORTER AXIS SPLIT
+                if (pcbboardsList[selected_board].getSize().height()<pcbboardsList[selected_board].getSize().width()) //SHORTER AXIS SPLIT
                 {
-                    newW1 = pcbboardsList[pcbboards_left].getSize().width();
+                    newW1 = pcbboardsList[selected_board].getSize().width();
                     newH2 = rectangleList[bestRect].height();
                 }
                 else
                 {
                     newW1 = rectangleList[bestRect].width();
-                    newH2 = pcbboardsList[pcbboards_left].getSize().height();
+                    newH2 = pcbboardsList[selected_board].getSize().height();
                 }
                 newX1 = rectangleList[bestRect].x();
-                newY1 = rectangleList[bestRect].y() + pcbboardsList[pcbboards_left].getSize().height();
-                newH1 = rectangleList[bestRect].height() - pcbboardsList[pcbboards_left].getSize().height();
-                newX2 = rectangleList[bestRect].x() + pcbboardsList[pcbboards_left].getSize().width();
+                newY1 = rectangleList[bestRect].y() + pcbboardsList[selected_board].getSize().height();
+                newH1 = rectangleList[bestRect].height() - pcbboardsList[selected_board].getSize().height();
+                newX2 = rectangleList[bestRect].x() + pcbboardsList[selected_board].getSize().width();
                 newY2 = rectangleList[bestRect].y();
-                newW2 = rectangleList[bestRect].width() - pcbboardsList[pcbboards_left].getSize().width();
+                newW2 = rectangleList[bestRect].width() - pcbboardsList[selected_board].getSize().width();
                 //Remove used rectangle and set the new ones
                 rectangleList.removeAt(bestRect);
                 if (newW1 > 0 && newH1 > 0) rectangleList.append(QRect(newX1,newY1,newW1,newH1));
                 if (newW2 > 0 && newH2 > 0) rectangleList.append(QRect(newX2,newY2,newW2,newH2));
 
-                pcbboards_left--;
+                pcbboards_used[selected_board] = 1;
+
+                while (pcbboards_used[pcbboards_left] == 1)
+                {
+                    pcbboards_left--;
+                }
             }
             sheet_id++;
         }
